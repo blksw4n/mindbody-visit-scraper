@@ -1,0 +1,9 @@
+{
+  "name": "mindbody-visit-scraper",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "puppeteer": "^21.3.8"
+  }
+}
