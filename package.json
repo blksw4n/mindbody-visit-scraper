@@ -4,6 +4,7 @@
   "main": "index.js",
   "type": "commonjs",
   "dependencies": {
+    "@sparticuz/chromium": "^133.0.0",
     "puppeteer": "^19.11.1"
   }
 }
