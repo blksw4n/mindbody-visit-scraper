@@ -1,26 +1,19 @@
-const { download } = require("@puppeteer/browsers/lib/cjs/cli/commands/download.js");
 const { launch } = require("puppeteer-core");
+const { execSync } = require("child_process");
 
 module.exports = async (req, res) => {
   try {
-    const revision = "121.0.6167.85";
-    const browserFetcherOptions = {
-      cacheDir: ".chrome-cache",
-      platform: process.platform === "darwin" ? "mac-arm64" : "linux",
-      buildId: revision,
-      product: "chrome",
-    };
-
-    const result = await download(browserFetcherOptions);
-    const executablePath = result.executablePath;
+    const chromePath = execSync("which google-chrome").toString().trim();
+    console.log("Resolved Chrome path:", chromePath);
 
     const browser = await launch({
-      executablePath,
+      executablePath: chromePath,
       headless: "new",
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
     const page = await browser.newPage();
+    console.log("Navigating to login page...");
     await page.goto("https://clients.mindbodyonline.com/ASP/login.asp", { waitUntil: "networkidle2" });
 
     await page.type('input[name="email"]', process.env.MB_EMAIL);
@@ -30,6 +23,7 @@ module.exports = async (req, res) => {
       page.waitForNavigation({ waitUntil: "networkidle2" })
     ]);
 
+    console.log("Login successful. Navigating to visit history...");
     await page.goto("https://clients.mindbodyonline.com/ASP/my_vh.asp", { waitUntil: "networkidle2" });
     await page.waitForSelector("table");
 
@@ -47,10 +41,12 @@ module.exports = async (req, res) => {
       });
     });
 
+    console.log(`Scraped ${visits.length} visits.`);
     await browser.close();
     res.status(200).json({ success: true, visits });
 
   } catch (err) {
+    console.error("Scraper failed:", err);
     res.status(500).json({ success: false, error: err.toString() });
   }
 };
