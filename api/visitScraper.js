@@ -3,12 +3,13 @@ const puppeteer = require("puppeteer");
 module.exports = async (req, res) => {
   console.log("NODE VERSION:", process.version);
   console.log("PUPPETEER VERSION:", require("puppeteer/package.json").version);
-  console.log("LAUNCHING PUPPETEER...");
+  console.log("LAUNCHING PUPPETEER with explicit Chromium path...");
 
   let browser;
   try {
     browser = await puppeteer.launch({
-      headless: "new",
+      executablePath: "/usr/bin/chromium",
+      headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
   } catch (launchErr) {
