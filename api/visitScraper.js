@@ -1,16 +1,18 @@
-const puppeteer = require("puppeteer");
+const chromium = require("@sparticuz/chromium");
+const puppeteer = require("puppeteer-core");
 
 module.exports = async (req, res) => {
   console.log("NODE VERSION:", process.version);
-  console.log("PUPPETEER VERSION:", require("puppeteer/package.json").version);
-  console.log("LAUNCHING PUPPETEER with explicit Chromium path...");
+  console.log("USING puppeteer-core with sparticuz/chromium");
 
   let browser;
   try {
     browser = await puppeteer.launch({
-      executablePath: "/usr/bin/chromium",
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
     });
   } catch (launchErr) {
     console.error("Failed to launch browser:", launchErr);
