@@ -7,6 +7,7 @@ module.exports = async (req, res) => {
 
   let browser;
   try {
+    console.time("launch");
     browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
@@ -14,6 +15,7 @@ module.exports = async (req, res) => {
       headless: chromium.headless,
       ignoreHTTPSErrors: true,
     });
+    console.timeEnd("launch");
   } catch (launchErr) {
     console.error("Failed to launch browser:", launchErr);
     return res.status(500).json({ success: false, error: launchErr.toString() });
@@ -21,22 +23,30 @@ module.exports = async (req, res) => {
 
   try {
     const page = await browser.newPage();
+
+    console.time("loginPage");
     await page.goto("https://clients.mindbodyonline.com/ASP/su1.asp?studioid=247885", {
       waitUntil: "networkidle2",
     });
+    console.timeEnd("loginPage");
 
+    console.time("login");
     await page.type('#txtUserName', process.env.MB_EMAIL);
     await page.type('#txtPassword', process.env.MB_PASSWORD);
     await Promise.all([
       page.click('input[type="submit"]'),
       page.waitForNavigation({ waitUntil: "networkidle2" }),
     ]);
+    console.timeEnd("login");
 
+    console.time("visitPage");
     await page.goto("https://clients.mindbodyonline.com/ASP/my_vh.asp", {
       waitUntil: "networkidle2",
     });
-    await page.waitForSelector("table");
+    console.timeEnd("visitPage");
 
+    console.time("scrape");
+    await page.waitForSelector("table");
     const visits = await page.$$eval("table tbody tr", (rows) => {
       return rows.map((row) => {
         const cells = Array.from(row.querySelectorAll("td"));
@@ -50,6 +60,7 @@ module.exports = async (req, res) => {
         };
       });
     });
+    console.timeEnd("scrape");
 
     await browser.close();
     res.status(200).json({ success: true, visits });
