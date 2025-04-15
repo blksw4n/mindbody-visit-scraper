@@ -1,11 +1,25 @@
-const puppeteer = require("puppeteer");
+const { download } = require("@puppeteer/browsers");
+const { launch } = require("puppeteer-core");
+const fs = require("fs");
 
 module.exports = async (req, res) => {
   try {
-    const chromePath = "/usr/bin/chromium"; // known working path on Vercel
+    const revision = "121.0.6167.85"; // stable known Chromium build
+    const browserFetcherOptions = {
+      cacheDir: "/tmp",
+      platform: "linux",
+      buildId: revision,
+      product: "chrome",
+    };
 
-    const browser = await puppeteer.launch({
-      executablePath: chromePath,
+    const result = await download(browserFetcherOptions);
+    const executablePath = result.executablePath;
+
+    console.log("Chromium path:", executablePath);
+    console.log("Exists?", fs.existsSync(executablePath));
+
+    const browser = await launch({
+      executablePath,
       headless: "new",
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
