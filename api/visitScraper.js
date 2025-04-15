@@ -1,29 +1,22 @@
-const { download } = require("@puppeteer/browsers");
-const { launch } = require("puppeteer-core");
-const fs = require("fs");
+const puppeteer = require("puppeteer");
 
 module.exports = async (req, res) => {
+  console.log("NODE VERSION:", process.version);
+  console.log("PUPPETEER VERSION:", require("puppeteer/package.json").version);
+  console.log("LAUNCHING PUPPETEER...");
+
+  let browser;
   try {
-    const revision = "121.0.6167.85"; // stable known Chromium build
-    const browserFetcherOptions = {
-      cacheDir: "/tmp",
-      platform: "linux",
-      buildId: revision,
-      product: "chrome",
-    };
-
-    const result = await download(browserFetcherOptions);
-    const executablePath = result.executablePath;
-
-    console.log("Chromium path:", executablePath);
-    console.log("Exists?", fs.existsSync(executablePath));
-
-    const browser = await launch({
-      executablePath,
+    browser = await puppeteer.launch({
       headless: "new",
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
+  } catch (launchErr) {
+    console.error("Failed to launch browser:", launchErr);
+    return res.status(500).json({ success: false, error: launchErr.toString() });
+  }
 
+  try {
     const page = await browser.newPage();
     await page.goto("https://clients.mindbodyonline.com/ASP/login.asp", {
       waitUntil: "networkidle2",
@@ -59,6 +52,7 @@ module.exports = async (req, res) => {
     res.status(200).json({ success: true, visits });
   } catch (err) {
     console.error("Scraper error:", err);
+    if (browser) await browser.close();
     res.status(500).json({ success: false, error: err.toString() });
   }
 };
