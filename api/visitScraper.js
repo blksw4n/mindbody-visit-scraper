@@ -1,6 +1,5 @@
 const { download } = require("@puppeteer/browsers");
 const { launch } = require("puppeteer-core");
-const fs = require("fs");
 
 module.exports = async (req, res) => {
   try {
@@ -52,7 +51,6 @@ module.exports = async (req, res) => {
     res.status(200).json({ success: true, visits });
 
   } catch (err) {
-    console.error("Scraper failed:", err);
     res.status(500).json({ success: false, error: err.toString() });
   }
 };
