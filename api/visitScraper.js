@@ -25,8 +25,8 @@ module.exports = async (req, res) => {
       waitUntil: "networkidle2",
     });
 
-    await page.type('input[name="email"]', process.env.MB_EMAIL);
-    await page.type('input[name="password"]', process.env.MB_PASSWORD);
+    await page.type('#txtUserName', process.env.MB_EMAIL);
+    await page.type('#txtPassword', process.env.MB_PASSWORD);
     await Promise.all([
       page.click('input[type="submit"]'),
       page.waitForNavigation({ waitUntil: "networkidle2" }),
