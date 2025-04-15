@@ -1,7 +1,11 @@
 const puppeteer = require("puppeteer");
 
 module.exports = async (req, res) => {
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({
+    headless: "new", // future-proof + better on Vercel
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+  });
+  
   const page = await browser.newPage();
 
   try {

@@ -4,6 +4,6 @@
   "main": "index.js",
   "type": "commonjs",
   "dependencies": {
-    "puppeteer": "^21.3.8"
+    "puppeteer": "^21.11.0"
   }
 }
