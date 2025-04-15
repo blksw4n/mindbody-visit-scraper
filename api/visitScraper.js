@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
 
   try {
     const page = await browser.newPage();
-    await page.goto("https://clients.mindbodyonline.com/ASP/login.asp", {
+    await page.goto("https://clients.mindbodyonline.com/ASP/su1.asp?studioid=247885", {
       waitUntil: "networkidle2",
     });
 
