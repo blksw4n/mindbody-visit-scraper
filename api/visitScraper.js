@@ -2,14 +2,18 @@ const puppeteer = require("puppeteer");
 
 module.exports = async (req, res) => {
   try {
+    const chromePath = "/usr/bin/chromium"; // known working path on Vercel
+
     const browser = await puppeteer.launch({
-      executablePath: "/usr/bin/google-chrome", // Vercel's built-in path
+      executablePath: chromePath,
       headless: "new",
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
     const page = await browser.newPage();
-    await page.goto("https://clients.mindbodyonline.com/ASP/login.asp", { waitUntil: "networkidle2" });
+    await page.goto("https://clients.mindbodyonline.com/ASP/login.asp", {
+      waitUntil: "networkidle2",
+    });
 
     await page.type('input[name="email"]', process.env.MB_EMAIL);
     await page.type('input[name="password"]', process.env.MB_PASSWORD);
@@ -18,11 +22,13 @@ module.exports = async (req, res) => {
       page.waitForNavigation({ waitUntil: "networkidle2" }),
     ]);
 
-    await page.goto("https://clients.mindbodyonline.com/ASP/my_vh.asp", { waitUntil: "networkidle2" });
+    await page.goto("https://clients.mindbodyonline.com/ASP/my_vh.asp", {
+      waitUntil: "networkidle2",
+    });
     await page.waitForSelector("table");
 
-    const visits = await page.$$eval("table tbody tr", rows => {
-      return rows.map(row => {
+    const visits = await page.$$eval("table tbody tr", (rows) => {
+      return rows.map((row) => {
         const cells = Array.from(row.querySelectorAll("td"));
         return {
           date: cells[0]?.innerText.trim(),
