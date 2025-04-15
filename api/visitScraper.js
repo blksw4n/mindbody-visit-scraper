@@ -1,4 +1,4 @@
-const download = require("@puppeteer/browsers");
+const { download } = require("@puppeteer/browsers/lib/cjs/cli/commands/download.js");
 const { launch } = require("puppeteer-core");
 
 module.exports = async (req, res) => {
