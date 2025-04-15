@@ -1,28 +1,23 @@
-const { download } = require('@puppeteer/browsers');
-const puppeteer = require('puppeteer-core');
-const fs = require('fs');
-const path = require('path');
+const { download } = require("@puppeteer/browsers");
+const { launch } = require("puppeteer-core");
 
-const chromiumPath = '/tmp/chromium/chrome-linux/chrome';
+const revision = "121.0.6167.85"; // The version required
 
-module.exports = async (req, res) => {
-  try {
-    // Download Chromium if not already present
-    if (!fs.existsSync(chromiumPath)) {
-      console.log('Downloading Chromium...');
-      await download({
-        browser: 'chrome',
-        platform: 'linux',
-        buildId: '121.0.6167.85', // exact version Vercel logs expected
-        cacheDir: '/tmp',
-      });
-    }
+const browserFetcherOptions = {
+  cacheDir: ".chrome-cache",
+  platform: process.platform === "darwin" ? "mac-arm64" : "linux",
+  buildId: revision,
+  product: "chrome",
+};
 
-    const browser = await puppeteer.launch({
-      executablePath: chromiumPath,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: 'new',
-    });
+const result = await download(browserFetcherOptions);
+const executablePath = result.executablePath;
+
+const browser = await launch({
+  executablePath,
+  headless: "new", // Puppeteer v21+ warning fix
+  args: ["--no-sandbox", "--disable-setuid-sandbox"],
+});
 
     const page = await browser.newPage();
 
